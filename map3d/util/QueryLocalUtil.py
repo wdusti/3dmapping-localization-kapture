@@ -27,6 +27,7 @@ def get_feature_upload(COLMAP, database_name, upload_image_tmp_dir):
     print(
         "QueryLocal get_feature_upload() upload_image_tmp_dir: " + upload_image_tmp_dir)
     print("1. feature_extractor")
+    #FIXME - will likely need to replace with kapture integrated feature extraction, but unsure of what this does. Left as is for now
     Utils.feature_colmap(COLMAP, database_name, upload_image_tmp_dir,
                          upload_image_tmp_dir)
     return
