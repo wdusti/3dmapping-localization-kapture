@@ -110,14 +110,14 @@ def StartMapConstruction_build(feature_dim, bank):
     username = auth.username();
     (workspace_dir, image_base_dir, json_base_dir, sparse_dir, database_dir, col_bin_dir) = MyEnv.get_env_total_dir(
         username, root_dir, bank)
+    
     print("1. feature_extractor")
-    Utils.feature_colmap(COLMAP, database_name, database_dir, image_base_dir)
-    # Utils.feature_cv(tmp_database_dir + database_name, image_dir)
-    print("2. Matching")
-    Utils.match_colmap(COLMAP, database_name, database_dir, image_base_dir)
-
-    print("3. point_triangulator")
-    Utils.point_triangulator_colmap(COLMAP, database_name, sparse_dir, database_dir, image_base_dir)
+    path = '\mapping' #temp fix
+    Utils.feature_kapture(root_dir, workspace_dir, image_base_dir, path)
+    
+    print("2. pipeline_mapping")
+    kapture_localization.kapture_pipeline_mapping(workspace_dir + '\dataset' + path, workspace_dir + '\dataset' + path + '\reconstruction\keypoints\r2d2_WASF_N16', workspace_dir + '\dataset' + path + '\reconstruction\descriptors\r2d2_WASF_N16', global_features_path = workspace_dir + '\dataset' + path + '\reconstruction\global_features\Resnet101-AP-GeM-LM18', workspace_dir + '\dataset' + path + '\reconstruction\matches', workspace_dir + '\dataset' + path + '\reconstruction\matches_gv', workspace_dir + '\dataset' + path + '\colmap-sfm', COLMAP,  5, 1)
+    
     print("StartMapConstruction build() end .....")
     return
 
