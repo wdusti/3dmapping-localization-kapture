@@ -14,6 +14,7 @@ from map3d.util import QueryLocalUtil, Utils, MyEnv
 from map3d.util.calc import read_model
 from environs import Env
 from flask_httpauth import HTTPBasicAuth
+import kapture_localization
 
 app = Flask(__name__)
 api = Api(app)
