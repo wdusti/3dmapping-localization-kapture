@@ -98,20 +98,18 @@ def feature_one_image_cv(img_name, img_folder):
 
 #root_dir - root directory, models likely stored under root dir instead of workspace dir
 #workspace_dir - directory for workspace
-#image_dir - directory for images to convert to kapture format
 #path - mapping or query, will be useful later on
-def feature_kapture(root_dir, workspace_dir, image_dir, path):
-    import argparse #just for local feature extraction, so the py function can be called instead of cmd line
-
-    #1. convert images to kapture format - DONE
-    #ex. kapture.import_image_folder('.\workspace\sample_user\workspace-0\images\mapping', '.\workspace\sample_user\workspace-0\dataset\mapping')
-    kapture.import_image_folder(image_dir + path, workspace_dir + '\dataset' + path)
-
-    #2. extract local features from kapture database - DONE
-    extract_local.extract_kapture_keypoints(argparse.Namespace(descriptors_type=None, gpu=[0], kapture_root = workspace_dir + '\dataset' + path, keypoints_type=None, max_scale=1, max_size=1024, min_scale=0, min_size=256, model= root_dir + '\models\r2d2_WASF_N16.pt', reliability_thr=0.7, repeatability_thr=0.7, scale_f=1.189207115002721, top_k=5000))
-
+def feature_kapture(root_dir, workspace_dir, tmp_database_dir, database_name, path):
+    #1. local feature extraction via colmap
+    pIntrisics = subprocess.Popen([COLMAP, "feature_extractor", "--database_path", tmp_database_dir + database_name, "--image_path", workspace_dir + '/images' + path, "--ImageReader.camera_model", "SIMPLE_PINHOLE"])
+    pIntrisics.wait()
+    
+    #2. convert colmap format to kapture format - later replace with function
+    pConvert = subprocess.Popen(["python", "kapture_import_colmap.py", "-db", tmp_database_dir + database_name, "-o", workspace_dir + '/kds' + path])
+    pConvert.wait()
+    
     #3. extract global features - DONE
-    extract_global.extract_kapture_global_features(workspace_dir + '\dataset' + path, extract_features.load_model(root_dir + '\models\Resnet101-AP-GeM-LM18.pt',True), 'Restnet101-AP-GeM-LM18', '', 'gem')
+    extract_global.extract_kapture_global_features(workspace_dir + '/kds' + path, extract_features.load_model(root_dir + '/models/Resnet101-AP-GeM-LM18.pt',True), 'Restnet101-AP-GeM-LM18', '', 'gem')
 
     
 def feature_colmap(COLMAP, database_name, tmp_database_dir, image_dir):
