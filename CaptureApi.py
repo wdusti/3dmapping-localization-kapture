@@ -176,7 +176,14 @@ def StartKLocalization():
     (workspace_dir, image_base_dir, json_base_dir, sparse_dir, database_dir, col_bin_dir) = MyEnv.get_env_total_dir(
         username, root_dir, bank)
     
-    localize_pipeline(kapture_map_path = workspace_dir + '/mapping', kapture_query_path = workspace_dir + '/query', merge_path, keypoints_path = '/local_features/SIFT/keypoints', descriptors_path = '/local_features/SIFT/descriptors', global_features_path = '/global_features/Resnet101-AP-GeM-LM18/global_features', input_pairsfile_path = '/colmap-sfm/SIFT/Resnet101-AP-GeM-LM18/pairs_mapping_5.txt', matches_path = '/local_features/SIFT/NN_no_gv', matches_gv_path = '/local_features/SIFT/NN_colmap_gv', keypoints_type = 'SIFT', descriptors_type = 'SIFT', global_features_type = 'Resnet101-AP-GeM-LM18', colmap_map_path = '/colmap-sfm', localization_output_path = '/colmap-localization', colmap_binary = COLMAP, python_binary = sys.executable, topk = 5, config = 1, benchmark_format_style, bins_as_str, skip_list = [], force_overwrite_existing = False)
+    localize_pipeline(kapture_map_path = workspace_dir + '/mapping', kapture_query_path = workspace_dir + '/query', 
+                      keypoints_path =  workspace_dir + '/local_features/SIFT/keypoints', descriptors_path =  workspace_dir + '/local_features/SIFT/descriptors', 
+                      global_features_path =  workspace_dir + '/global_features/Resnet101-AP-GeM-LM18/global_features', 
+                      input_pairsfile_path =  workspace_dir + '/colmap-sfm/SIFT/Resnet101-AP-GeM-LM18/pairs_mapping_5.txt', 
+                      matches_path =  workspace_dir + '/local_features/SIFT/NN_no_gv', matches_gv_path =  workspace_dir + '/local_features/SIFT/NN_colmap_gv', 
+                      keypoints_type = 'SIFT', descriptors_type = 'SIFT', global_features_type = 'Resnet101-AP-GeM-LM18', 
+                      colmap_map_path =  workspace_dir + '/colmap-sfm', localization_output_path =  workspace_dir + '/colmap-localization', colmap_binary = COLMAP, 
+                      python_binary = sys.executable, topk = 5, config = 1, benchmark_format_style, bins_as_str, skip_list = [], force_overwrite_existing = False)
     return
     
 @app.route('/capture-photo/querylocal', methods=['GET', 'POST'])
