@@ -99,7 +99,8 @@ def StartMapConstruction():
     json_data = request.get_json(force=True)
     bank = json_data['bank']
     feature_dim = json_data['feature_dim']
-    StartMapConstruction_build(feature_dim, bank)
+    # StartMapConstruction_build(feature_dim, bank)
+    StartKMapping(bank)
     # Utils.gen_newdb(sparse_dir, database_name, feature_dim, bank )
     # Utils.remove_build_useless_files(sparse_dir, feature_dim, bank )
     print("StartMapConstruction FIN")
