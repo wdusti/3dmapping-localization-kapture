@@ -111,22 +111,35 @@ def StartMapConstruction_build(feature_dim, bank):
     username = auth.username();
     (workspace_dir, image_base_dir, json_base_dir, sparse_dir, database_dir, col_bin_dir) = MyEnv.get_env_total_dir(
         username, root_dir, bank)
-    
     print("1. feature_extractor")
-    path = '\mapping' #FIXME
-    Utils.feature_kapture(root_dir, workspace_dir, image_base_dir, path)
+    Utils.feature_colmap(COLMAP, database_name, database_dir, image_base_dir)
+    # Utils.feature_cv(tmp_database_dir + database_name, image_dir)
+    print("2. Matching")
+    Utils.match_colmap(COLMAP, database_name, database_dir, image_base_dir)
     
-    print("2. pipeline_mapping")
-    kapture_localization.kapture_pipeline_mapping(workspace_dir + '\dataset' + path, workspace_dir + '\dataset' + path + '\reconstruction\keypoints\r2d2_WASF_N16', workspace_dir + '\dataset' + path + '\reconstruction\descriptors\r2d2_WASF_N16', global_features_path = workspace_dir + '\dataset' + path + '\reconstruction\global_features\Resnet101-AP-GeM-LM18', workspace_dir + '\dataset' + path + '\reconstruction\matches', workspace_dir + '\dataset' + path + '\reconstruction\matches_gv', workspace_dir + '\dataset' + path + '\colmap-sfm', COLMAP,  5, 1)
-    
+    print("3. point_triangulator")
+    Utils.point_triangulator_colmap(COLMAP, database_name, sparse_dir, database_dir, image_base_dir)
     print("StartMapConstruction build() end .....")
     return
 
-#FIXME
-def StartKMapping():
+def StartKMapping(bank):
     from kapture_pipeline_mapping import mapping_pipeline
     
-    mapping_pipeline(kapture_path = workspace_dir + '/mapping', keypoints_path = workspace_dir + '/local_features/SIFT/keypoints', descriptors_path = '/local_features/SIFT/descriptors', matches_path = '/local_features/SIFT/NN_no_gv', matches_gv_path = '/local_features/SIFT/NN_colmap_gv', colmap_map_path = workspace_dir + '/colmap-sfm', colmap_binary = COLMAP, topk = 5, config = 1, global_features_path = '/global_features/Resnet101-AP-GeM-LM18/global_features', keypoints_type = 'SIFT', descriptors_type = 'SIFT', global_features_type = 'Resnet101-AP-GeM-LM18', skip_list = [], force_overwrite_existing = False, python_binary = sys.executable, input_pairsfile_path = '/colmap-sfm/SIFT/Resnet101-AP-GeM-LM18_top5/pairs_mapping_5.txt')
+    print("Kapture map construction start...");
+    
+    username = auth.username();
+    (workspace_dir, image_base_dir, json_base_dir, sparse_dir, database_dir, col_bin_dir) = MyEnv.get_env_total_dir(
+        username, root_dir, bank)
+    
+    mapping_pipeline(kapture_path = workspace_dir + '/mapping', keypoints_path = workspace_dir + '/local_features/SIFT/keypoints', 
+                     descriptors_path = workspace_dir + '/local_features/SIFT/descriptors', matches_path = workspace_dir + '/local_features/SIFT/NN_no_gv', 
+                     matches_gv_path = workspace_dir + '/local_features/SIFT/NN_colmap_gv', colmap_map_path = workspace_dir + '/colmap-sfm', 
+                     colmap_binary = COLMAP, topk = 5, config = 1, global_features_path = workspace_dir + '/global_features/Resnet101-AP-GeM-LM18/global_features', 
+                     keypoints_type = 'SIFT', descriptors_type = 'SIFT', global_features_type = 'Resnet101-AP-GeM-LM18', skip_list = [], 
+                     force_overwrite_existing = False, python_binary = sys.executable, 
+                     input_pairsfile_path = workspace_dir + '/colmap-sfm/SIFT/Resnet101-AP-GeM-LM18_top5/pairs_mapping_5.txt')
+    
+    print("Kapture map construction end...");
     return
 
 @app.route('/capture-photo/clear', methods=['GET', 'POST'])
@@ -153,9 +166,14 @@ def ClearWorkspace():
     return jsonify();
     print("ClearWorkspace FIN")
 
-#FIXME
 def StartKLocalization():
     from kapture_pipeline_localize import localize_pipeline
+    
+    json_data = request.get_json(force=True)
+    bank = json_data['bank']
+    username = auth.username();
+    (workspace_dir, image_base_dir, json_base_dir, sparse_dir, database_dir, col_bin_dir) = MyEnv.get_env_total_dir(
+        username, root_dir, bank)
     
     localize_pipeline(kapture_map_path = workspace_dir + '/mapping', kapture_query_path = workspace_dir + '/query', merge_path, keypoints_path = '/local_features/SIFT/keypoints', descriptors_path = '/local_features/SIFT/descriptors', global_features_path = '/global_features/Resnet101-AP-GeM-LM18/global_features', input_pairsfile_path = '/colmap-sfm/SIFT/Resnet101-AP-GeM-LM18/pairs_mapping_5.txt', matches_path = '/local_features/SIFT/NN_no_gv', matches_gv_path = '/local_features/SIFT/NN_colmap_gv', keypoints_type = 'SIFT', descriptors_type = 'SIFT', global_features_type = 'Resnet101-AP-GeM-LM18', colmap_map_path = '/colmap-sfm', localization_output_path = '/colmap-localization', colmap_binary = COLMAP, python_binary = sys.executable, topk = 5, config = 1, benchmark_format_style, bins_as_str, skip_list = [], force_overwrite_existing = False)
     return
