@@ -13,8 +13,8 @@ import open3d
 
 import kapture #for kapture database
 import kapture_localization #image pairs and matching
-from deep_image_retrieval.dirtorch import extract_kapture as extract_global, extract_features #global feature extraction
-from r2d2_master import extract_kapture as extract_local #local feature extraction
+from map3d.util.deep_image_retrieval.dirtorch import extract_kapture as extract_global, extract_features #global feature extraction
+from map3d.util.r2d2_master import extract_kapture as extract_local #local feature extraction
 
 class NDArrayEncoder(JSONEncoder):
     def default(self, obj):
@@ -99,17 +99,23 @@ def feature_one_image_cv(img_name, img_folder):
 #root_dir - root directory, models likely stored under root dir instead of workspace dir
 #workspace_dir - directory for workspace
 #path - mapping or query, will be useful later on
-def feature_kapture(root_dir, workspace_dir, tmp_database_dir, database_name, path):
+def feature_kapture(root_dir, workspace_dir, tmp_database_dir, database_name, colmap_path):
     #1. local feature extraction via colmap
-    pIntrisics = subprocess.Popen([COLMAP, "feature_extractor", "--database_path", tmp_database_dir + database_name, "--image_path", workspace_dir + '/images' + path, "--ImageReader.camera_model", "SIMPLE_PINHOLE"])
+    print("Local feature extract via colmap start...")
+    pIntrisics = subprocess.Popen([colmap_path, "feature_extractor", "--database_path", tmp_database_dir + database_name, "--image_path", workspace_dir + '/images', "--ImageReader.camera_model", "SIMPLE_PINHOLE"])
     pIntrisics.wait()
+    print("Local feature extract via colmap end...")
     
     #2. convert colmap format to kapture format - later replace with function
-    pConvert = subprocess.Popen(["python", "kapture_import_colmap.py", "-db", tmp_database_dir + database_name, "-o", workspace_dir + '/kds' + path])
+    print("COLMAP SIFT to kapture format start...")
+    pConvert = subprocess.Popen(["python", "kapture_import_colmap.py", "-db", tmp_database_dir + database_name, "-o", workspace_dir + '/kds'])
     pConvert.wait()
+    print("COLMAP SIFT to kapture format end...")
     
     #3. extract global features - DONE
-    extract_global.extract_kapture_global_features(workspace_dir + '/kds' + path, extract_features.load_model(root_dir + '/models/Resnet101-AP-GeM-LM18.pt',True), 'Restnet101-AP-GeM-LM18', '', 'gem')
+    print("Global feature extract start...")
+    extract_global.extract_kapture_global_features(workspace_dir + '/kds', extract_features.load_model('./map3d/util/models/Resnet101-AP-GeM-LM18.pt',True), 'Restnet101-AP-GeM-LM18', '', 'gem')
+    print("Global feature extract end...")
 
     
 def feature_colmap(COLMAP, database_name, tmp_database_dir, image_dir):
