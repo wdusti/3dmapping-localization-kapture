@@ -7,6 +7,8 @@ from PIL import Image
 from datetime import datetime
 from map3d.util import Utils
 
+import sys
+sys.path.append('./map3d/util')
 
 def find_photos_filenames(full_dir_path, isPng=False):
     for root, ds, fs in os.walk(full_dir_path):
